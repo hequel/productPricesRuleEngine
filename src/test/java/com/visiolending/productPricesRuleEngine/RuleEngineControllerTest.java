@@ -3,42 +3,36 @@ package com.visiolending.productPricesRuleEngine;
 import com.visiolending.productPricesRuleEngine.model.*;
 import com.visiolending.productPricesRuleEngine.service.RulesEngine;
 import com.visiolending.productPricesRuleEngine.service.RulesLoader;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
+
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
 
 import static com.visiolending.productPricesRuleEngine.service.RulesEngine.*;
 import static org.hamcrest.CoreMatchers.is;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
-import static org.junit.Assert.assertThat;
 
 import java.util.*;
 
 import static com.visiolending.productPricesRuleEngine.service.RulesLoader.RULE_SERVICE_URL;
-import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
 
-//@ExtendWith(SpringExtension.class)
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-
-public class RuleEngineControllerIT {
+@Slf4j
+@SpringBootTest(classes = ProductPricesRuleEngineApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+public class RuleEngineControllerTest {
 
     @Value("${local.server.port}")
     private int port;
@@ -46,19 +40,15 @@ public class RuleEngineControllerIT {
     @MockBean(name = "RuleServiceRestTemplate")
     private RestTemplate RuleServiceRestTemplate;
 
+    @Autowired
     private TestRestTemplate restTemplate;
 
-    @Mock
+    @Autowired
     private RulesEngine rulesEngine;
+
+    @MockBean
     private RulesLoader rulesLoader;
 
-
-    @Before
-    public void setUp()
-    {
-        rulesLoader = mock(RulesLoader.class);
-        restTemplate = new TestRestTemplate();
-    }
 
     @Test
     public void send_request_should_return_decrease_rate_when_credit_score_greater_or_equal_720()
@@ -71,7 +61,6 @@ public class RuleEngineControllerIT {
         Result result = new Result();
         result.setInterest_rate(4.7);
         result.setDisqualified(false);
-        when(rulesEngine.processRequest(priceRequest)).thenReturn(result);
 
         List<RulesDefinition> rulesDefinitions = new ArrayList<>();
 
@@ -116,17 +105,11 @@ public class RuleEngineControllerIT {
     }
 
     @Test
-    public void send_request_should_return_decrease_rate_when_credit_score_greater_or_equal_720_using_initial_rules_provided()
-    {
+    public void send_request_should_return_decrease_rate_when_credit_score_greater_or_equal_720_using_initial_rules() {
         PriceRequest priceRequest = new PriceRequest();
         priceRequest.setCredit_score(725);
         priceRequest.setProductName("homeMorgage");
         priceRequest.setState("california");
-
-        Result result = new Result();
-        result.setInterest_rate(4.7);
-        result.setDisqualified(false);
-        when(rulesEngine.processRequest(priceRequest)).thenReturn(result);
 
         Rules rules = new Rules();
         rules.setRules(Collections.EMPTY_LIST);
@@ -166,7 +149,6 @@ public class RuleEngineControllerIT {
         Result result = new Result();
         result.setInterest_rate(5.5);
         result.setDisqualified(false);
-        when(rulesEngine.processRequest(priceRequest)).thenReturn(result);
 
         List<RulesDefinition> rulesDefinitions = new ArrayList<>();
 
@@ -221,8 +203,6 @@ public class RuleEngineControllerIT {
         Result result = new Result();
         result.setInterest_rate(5.5);
         result.setDisqualified(false);
-        when(rulesEngine.processRequest(priceRequest)).thenReturn(result);
-
 
         Rules rules = new Rules();
         rules.setRules(Collections.EMPTY_LIST);
@@ -261,7 +241,6 @@ public class RuleEngineControllerIT {
         Result result = new Result();
         result.setInterest_rate(5.5);
         result.setDisqualified(false);
-        when(rulesEngine.processRequest(priceRequest)).thenReturn(result);
 
         List<RulesDefinition> rulesDefinitions = new ArrayList<>();
 
@@ -316,8 +295,6 @@ public class RuleEngineControllerIT {
         Result result = new Result();
         result.setInterest_rate(5.5);
         result.setDisqualified(false);
-        when(rulesEngine.processRequest(priceRequest)).thenReturn(result);
-
 
         Rules rules = new Rules();
         rules.setRules(Collections.EMPTY_LIST);
@@ -356,7 +333,6 @@ public class RuleEngineControllerIT {
 
         Result result = new Result();
         result.setDisqualified(true);
-        when(rulesEngine.processRequest(priceRequest)).thenReturn(result);
 
         List<RulesDefinition> rulesDefinitions = new ArrayList<>();
 
@@ -406,7 +382,6 @@ public class RuleEngineControllerIT {
 
         Result result = new Result();
         result.setDisqualified(true);
-        when(rulesEngine.processRequest(priceRequest)).thenReturn(result);
 
         Rules rules = new Rules();
         rules.setRules(Collections.EMPTY_LIST);
@@ -443,7 +418,6 @@ public class RuleEngineControllerIT {
         Result result = new Result();
         result.setInterest_rate(4.5);
         result.setDisqualified(false);
-        when(rulesEngine.processRequest(priceRequest)).thenReturn(result);
 
         List<RulesDefinition> rulesDefinitions = new ArrayList<>();
 
