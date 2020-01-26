@@ -14,13 +14,14 @@ import java.util.List;
 @Slf4j
 public class RulesEngine {
 
-    private static List<RuleEvaluator> rules = new ArrayList<>();
+    private List<RuleEvaluator> rules = new ArrayList<>();
 
     public  static final double CURRENT_CREDIT_SCORE_BAR = 720.0;
     static final Double START_INTEREST_RATE = 5.0;
     static final String DISQUALIFIED_STATE = "florida";
-    public static final double GREATER_THAN_720_INCREASE_RATE = .3;
     public static final double PRODUCT_NAME_INCREASED_RATE = .5;
+    public static final double POINT_FIVE_PERCENT_INCREASED_RATE = .5;
+    public static final double POINT_THREE_PERCENT_INCREASED_RATE = .3;
     static final String INCREASED_RATE_PRODUCT_NAME = "7-1 ARM";
     public static final String INCREASE_RATE = "increase_rate";
     public static final String DECREASE_RATE = "decrease_rate";
@@ -33,13 +34,12 @@ public class RulesEngine {
     @Autowired
     public RulesEngine(RulesLoader rulesLoader) {
         this.rulesLoader = rulesLoader;
-    }
 
-    static {
-        rules.add(new CreditScoreIncreaseRateRule());
-        rules.add(new DisqualifiedStateRule());
         rules.add(new CreditScoreDiscountRule());
+        rules.add(new CreditScoreIncreaseRateRule());
         rules.add(new ProductNameIncreaseRateRule());
+        rules.add(new DisqualifiedStateRule());
+
     }
 
     public Result processRequest(PriceRequest priceRequest) {
@@ -92,6 +92,7 @@ public class RulesEngine {
                     });
         }else
         {
+
             rule[0] = rules
                     .stream()
                     .filter(r -> r.evaluate(priceRequest, null, 0.0, 0.0, null, null, null))

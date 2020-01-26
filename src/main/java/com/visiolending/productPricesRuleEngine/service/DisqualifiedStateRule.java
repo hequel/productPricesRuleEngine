@@ -6,23 +6,27 @@ import com.visiolending.productPricesRuleEngine.model.Result;
 import static com.visiolending.productPricesRuleEngine.service.RulesEngine.*;
 
 public class DisqualifiedStateRule implements RuleEvaluator {
-    Result result = new Result();
+    Result result = null;
 
     @Override
     public boolean evaluate(PriceRequest priceRequest, String action, double rateDiscount, double creditScoreRule, String creditScoreMathSymbolRule, String personStateRule, String productNameRule) {
 
+
         if (priceRequest.getState().equalsIgnoreCase(DISQUALIFIED_STATE)) {
+            result = new Result();
             result.setDisqualified(true);
             result.setMatch(true);
 
             if (priceRequest.getProductName().equalsIgnoreCase(INCREASED_RATE_PRODUCT_NAME)) {
-                result.setInterest_rate(result.getInterest_rate() + PRODUCT_NAME_INCREASED_RATE);
+                result.setInterest_rate(START_INTEREST_RATE + PRODUCT_NAME_INCREASED_RATE);
+                result.setMatch(true);
 
             }
 
             if (productNameRule != null) {
                 if (priceRequest.getProductName().equalsIgnoreCase(productNameRule) && action.equalsIgnoreCase(INCREASE_RATE)) {
-                    result.setInterest_rate(result.getInterest_rate() + rateDiscount);
+                    result.setInterest_rate(START_INTEREST_RATE + rateDiscount);
+                    result.setMatch(true);
                     result.setMatchLodedRule(true);
 
                 }
@@ -36,8 +40,11 @@ public class DisqualifiedStateRule implements RuleEvaluator {
             }
 
         }
-
-        return result.isMatch();
+        if (result == null) {
+            result = new Result();
+            result.setDisqualified(false);
+        }
+        return result.isDisqualified();
     }
 
     @Override
