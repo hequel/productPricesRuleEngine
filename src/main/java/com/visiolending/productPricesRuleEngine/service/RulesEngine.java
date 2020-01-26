@@ -16,19 +16,6 @@ public class RulesEngine {
 
     private List<RuleEvaluator> rules = new ArrayList<>();
 
-    public  static final double CURRENT_CREDIT_SCORE_BAR = 720.0;
-    static final Double START_INTEREST_RATE = 5.0;
-    static final String DISQUALIFIED_STATE = "florida";
-    public static final double PRODUCT_NAME_INCREASED_RATE = .5;
-    public static final double POINT_FIVE_PERCENT_INCREASED_RATE = .5;
-    public static final double POINT_THREE_PERCENT_INCREASED_RATE = .3;
-    static final String INCREASED_RATE_PRODUCT_NAME = "7-1 ARM";
-    public static final String INCREASE_RATE = "increase_rate";
-    public static final String DECREASE_RATE = "decrease_rate";
-    public static final String DISQUALIFY = "disqualify";
-    public static final String LESS_THAN = "<";
-    public static final String GREATER_THAN_OR_EQUAL_TO = ">=";
-
     private final RulesLoader rulesLoader;
 
     @Autowired
@@ -50,15 +37,15 @@ public class RulesEngine {
         String[] personStateRule = {null};
         String[] productNameRule = {null};
         String[] creditScoreMathSymbolRule = {null};
-        RuleEvaluator[] rule = {null};
+        Result[] rule = {null};
 
-        if(loaderRules != null && !loaderRules.getRules().isEmpty()) {
+        if (loaderRules != null && !loaderRules.getRules().isEmpty()) {
             loaderRules.getRules()
                     .forEach(rulesDefinition -> {
 
                         String action = rulesDefinition.getAction();
 
-                        if ( rule[0] != null &&  rule[0].getResult() != null &&  rule[0].getResult().isMatchLodedRule())
+                        if (rule[0] != null && rule[0].isMatchLodedRule())
                             return;
 
                         double rateDiscount = 0; // = Double.parseDouble(rulesDefinition.getParameter());
@@ -84,24 +71,25 @@ public class RulesEngine {
                         double finalRateDiscount = rateDiscount;
                         rule[0] = rules
                                 .stream()
-                                .filter(r -> r.evaluate(priceRequest, action, finalRateDiscount, creditScoreRule[0], creditScoreMathSymbolRule[0], personStateRule[0], productNameRule[0]))
+                                .filter(r -> r.matches(priceRequest, action, finalRateDiscount, creditScoreRule[0], creditScoreMathSymbolRule[0], personStateRule[0], productNameRule[0]))
+                                .map(r -> r.evaluate(priceRequest, action, finalRateDiscount, creditScoreRule[0], creditScoreMathSymbolRule[0], personStateRule[0], productNameRule[0]))
                                 .findFirst()
                                 .orElseThrow(() -> new IllegalArgumentException("Expression does not matches any Rule"));
 
 
                     });
-        }else
-        {
+        } else {
 
             rule[0] = rules
                     .stream()
-                    .filter(r -> r.evaluate(priceRequest, null, 0.0, 0.0, null, null, null))
+                    .filter(r -> r.matches(priceRequest, null, 0.0, 0.0, null, null, null))
+                    .map(r -> r.evaluate(priceRequest, null, 0.0, 0.0, null, null, null))
                     .findFirst()
                     .orElseThrow(() -> new IllegalArgumentException("Expression does not matches any Rule"));
 
         }
-        log.info("rule engine result for priceRequest {} : {}", priceRequest.toString(), rule[0].getResult().toString());
-        return rule[0].getResult();
+        log.info("rule engine result for priceRequest {} : {}", priceRequest.toString(), rule[0].toString());
+        return rule[0];
     }
 
 }

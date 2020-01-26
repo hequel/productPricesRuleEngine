@@ -7,6 +7,6 @@ import com.visiolending.productPricesRuleEngine.model.Result;
 
 public interface RuleEvaluator {
 
-    boolean evaluate(PriceRequest priceRequest, String action, double rateDiscount, double creditScoreRule, String  creditScoreMathSymbolRule, String personStateRule, String productNameRule);
-    Result getResult();
+    boolean matches(PriceRequest priceRequest, String action, double rateDiscount, double creditScoreRule, String  creditScoreMathSymbolRule, String personStateRule, String productNameRule);
+    Result evaluate(PriceRequest priceRequest, String action, double rateDiscount, double creditScoreRule, String  creditScoreMathSymbolRule, String personStateRule, String productNameRule);
 }

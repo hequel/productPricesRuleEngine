@@ -3,52 +3,36 @@ package com.visiolending.productPricesRuleEngine.service;
 import com.visiolending.productPricesRuleEngine.model.PriceRequest;
 import com.visiolending.productPricesRuleEngine.model.Result;
 
-import static com.visiolending.productPricesRuleEngine.service.RulesEngine.*;
+import static com.visiolending.productPricesRuleEngine.RulesConstant.*;
 
 public class DisqualifiedStateRule implements RuleEvaluator {
-    Result result = null;
+    Result result = new Result();
 
     @Override
-    public boolean evaluate(PriceRequest priceRequest, String action, double rateDiscount, double creditScoreRule, String creditScoreMathSymbolRule, String personStateRule, String productNameRule) {
+    public boolean matches(PriceRequest priceRequest, String action, double rateDiscount, double creditScoreRule, String creditScoreMathSymbolRule, String personStateRule, String productNameRule) {
+        return ((priceRequest.getState().equalsIgnoreCase(DISQUALIFIED_STATE)
+                || priceRequest.getState().equalsIgnoreCase(personStateRule) && action.equalsIgnoreCase(DISQUALIFY)));
+    }
+
+    @Override
+    public Result evaluate(PriceRequest priceRequest, String action, double rateDiscount, double creditScoreRule, String creditScoreMathSymbolRule, String personStateRule, String productNameRule) {
 
 
         if (priceRequest.getState().equalsIgnoreCase(DISQUALIFIED_STATE)) {
-            result = new Result();
             result.setDisqualified(true);
-            result.setMatch(true);
 
-            if (priceRequest.getProductName().equalsIgnoreCase(INCREASED_RATE_PRODUCT_NAME)) {
+            if (priceRequest.getProductName().equalsIgnoreCase(INCREASED_RATE_PRODUCT_NAME))
                 result.setInterest_rate(START_INTEREST_RATE + PRODUCT_NAME_INCREASED_RATE);
-                result.setMatch(true);
 
-            }
-
-            if (productNameRule != null) {
-                if (priceRequest.getProductName().equalsIgnoreCase(productNameRule) && action.equalsIgnoreCase(INCREASE_RATE)) {
-                    result.setInterest_rate(START_INTEREST_RATE + rateDiscount);
-                    result.setMatch(true);
-                    result.setMatchLodedRule(true);
-
-                }
-            }
-        }
-
-        if (personStateRule != null) {
-            if (priceRequest.getState().equalsIgnoreCase(personStateRule) && action.equalsIgnoreCase(DISQUALIFY)) {
-                result.setDisqualified(true);
-                result.setMatch(true);
-            }
+            if (productNameRule != null && priceRequest.getProductName().equalsIgnoreCase(productNameRule) && action.equalsIgnoreCase(INCREASE_RATE))
+                result.setInterest_rate(START_INTEREST_RATE + rateDiscount);
 
         }
-        if (result == null) {
-            result = new Result();
-            result.setDisqualified(false);
-        }
-        return result.isDisqualified();
-    }
 
-    @Override
-    public Result getResult() {
+        if (personStateRule != null && priceRequest.getState().equalsIgnoreCase(personStateRule) && action.equalsIgnoreCase(DISQUALIFY))
+            result.setDisqualified(true);
+
         return result;
     }
+
 }

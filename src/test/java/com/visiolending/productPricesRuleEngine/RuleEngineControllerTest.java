@@ -15,7 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.client.RestTemplate;
 
-import static com.visiolending.productPricesRuleEngine.service.RulesEngine.*;
+import static com.visiolending.productPricesRuleEngine.RulesConstant.*;
 import static org.hamcrest.CoreMatchers.is;
 
 import static org.hamcrest.MatcherAssert.assertThat;
