@@ -462,6 +462,61 @@ public class RuleEngineControllerTest {
     }
 
     @Test
+    public void send_request_should_return_increase_rate_of_6_percent_when_credit_score_less_than_650()
+    {
+        PriceRequest priceRequest = new PriceRequest();
+        priceRequest.setCredit_score(620);
+        priceRequest.setProductName("homeMorgage");
+        priceRequest.setState("california");
+
+        Result result = new Result();
+        result.setInterest_rate(4.5);
+        result.setDisqualified(false);
+
+        List<RulesDefinition> rulesDefinitions = new ArrayList<>();
+
+        RulesDefinition rulesDefinition = new RulesDefinition();
+        rulesDefinition.setAction(INCREASE_RATE);
+        rulesDefinition.setParameter("1");
+
+        List<ActionTrigger> actionTriggers = new ArrayList<>();
+
+        ActionTrigger actionTriggerCreditScore = new ActionTrigger();
+        actionTriggerCreditScore.setPersonCreditSCore("650");
+        actionTriggerCreditScore.setPersonCreditSCoreComparisonOperator(LESS_THAN);
+
+        actionTriggers.add(actionTriggerCreditScore);
+
+        rulesDefinition.setActionTtriggers(actionTriggers);
+        rulesDefinitions.add(rulesDefinition);
+        Rules rules = new Rules();
+        rules.setRules(rulesDefinitions);
+
+        ResponseEntity<Rules> listResponseEntity = mock(ResponseEntity.class);
+        when(listResponseEntity.getStatusCode()).thenReturn(HttpStatus.OK);
+        when(listResponseEntity.getBody()).thenReturn(rules);
+
+        when(RuleServiceRestTemplate
+                .getForEntity(
+                        eq(RULE_SERVICE_URL),
+                        eq(Rules.class)))
+                .thenReturn(listResponseEntity);
+
+        when(rulesLoader.getRules()).thenReturn(rules);
+
+
+        ResponseEntity<Result> ruleEngileResponseEntity = restTemplate.postForEntity("http://localhost:" + port + "/ruleEngine/api/v1/prices", priceRequest, Result.class);
+
+        assertThat(ruleEngileResponseEntity, notNullValue());
+        assertThat(ruleEngileResponseEntity.getStatusCode(), is(HttpStatus.OK));
+
+        Result resultResponse = ruleEngileResponseEntity.getBody();
+        assertThat(resultResponse.getInterest_rate(), is(6.0));
+        assertFalse(resultResponse.isDisqualified());
+    }
+
+
+    @Test
     public void send_request_should_return_decrease_rate_of_5_percent_when_credit_score_greater_or_equal_750_with_many_rules()
     {
         PriceRequest priceRequest = new PriceRequest();
