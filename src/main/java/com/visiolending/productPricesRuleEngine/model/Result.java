@@ -12,5 +12,6 @@ public class Result {
     private Double interest_rate;
     private boolean disqualified;
     private boolean match;
+    private boolean matchLodedRule;
 
 }

@@ -22,6 +22,7 @@ public class ProductNameIncreaseRateRule implements RuleEvaluator {
                 result.setInterest_rate(START_INTEREST_RATE + rateDiscount);
                 result.setDisqualified(false);
                 result.setMatch(true);
+                result.setMatchLodedRule(true);
 
             }
         }
@@ -35,10 +36,11 @@ public class ProductNameIncreaseRateRule implements RuleEvaluator {
             if (priceRequest.getState().equalsIgnoreCase(personStateRule) && action.equalsIgnoreCase(DISQUALIFY)) {
                 result.setDisqualified(true);
                 result.setMatch(true);
+                result.setMatchLodedRule(true);
             }
 
         }
-        return result.isDisqualified();
+        return result.isMatch();
     }
 
     @Override

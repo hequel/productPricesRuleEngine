@@ -58,6 +58,9 @@ public class RulesEngine {
 
                         String action = rulesDefinition.getAction();
 
+                        if ( rule[0] != null &&  rule[0].getResult() != null &&  rule[0].getResult().isMatchLodedRule())
+                            return;
+
                         double rateDiscount = 0; // = Double.parseDouble(rulesDefinition.getParameter());
                         if (rulesDefinition.getParameter() != null)
                             rateDiscount = Double.parseDouble(rulesDefinition.getParameter());
@@ -96,7 +99,7 @@ public class RulesEngine {
                     .orElseThrow(() -> new IllegalArgumentException("Expression does not matches any Rule"));
 
         }
-
+        log.info("rule engine result for priceRequest {} : {}", priceRequest.toString(), rule[0].getResult().toString());
         return rule[0].getResult();
     }
 

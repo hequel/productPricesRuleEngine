@@ -280,7 +280,7 @@ public class RuleEngineControllerTest {
         assertThat(ruleEngileResponseEntity.getStatusCode(), is(HttpStatus.OK));
 
         Result resultResponse = ruleEngileResponseEntity.getBody();
-        assertThat(resultResponse.getInterest_rate(), is(5.5));
+        assertThat(resultResponse.getInterest_rate(), is(6.0));
         assertFalse(resultResponse.isDisqualified());
     }
 
@@ -318,7 +318,7 @@ public class RuleEngineControllerTest {
         assertThat(ruleEngileResponseEntity.getStatusCode(), is(HttpStatus.OK));
 
         Result resultResponse = ruleEngileResponseEntity.getBody();
-        assertThat(resultResponse.getInterest_rate(), is(5.5));
+        assertThat(resultResponse.getInterest_rate(), is(6.0));
         assertFalse(resultResponse.isDisqualified());
     }
 
@@ -460,6 +460,89 @@ public class RuleEngineControllerTest {
         assertThat(resultResponse.getInterest_rate(), is(4.5));
         assertFalse(resultResponse.isDisqualified());
     }
+
+    @Test
+    public void send_request_should_return_decrease_rate_of_5_percent_when_credit_score_greater_or_equal_750_with_many_rules()
+    {
+        PriceRequest priceRequest = new PriceRequest();
+        priceRequest.setCredit_score(759);
+        priceRequest.setProductName("homeMorgage");
+        priceRequest.setState("california");
+
+        List<RulesDefinition> rulesDefinitions = new ArrayList<>();
+
+
+        Rules rules = new Rules();
+        rules.setRules(rulesDefinitions);
+
+        RulesDefinition rulesDefinitionDisqualify = new RulesDefinition();
+        rulesDefinitionDisqualify.setAction(DISQUALIFY);
+
+        List<ActionTrigger> actionTriggersDisqualifyList = new ArrayList<>();
+
+        ActionTrigger actionTriggerCreditScoreDisqualify = new ActionTrigger();
+        actionTriggerCreditScoreDisqualify.setPersonState("florida");
+
+        actionTriggersDisqualifyList.add(actionTriggerCreditScoreDisqualify);
+
+        rulesDefinitionDisqualify.setActionTtriggers(actionTriggersDisqualifyList);
+        rulesDefinitions.add(rulesDefinitionDisqualify);
+
+        RulesDefinition rulesDefinitionIncreaseRate = new RulesDefinition();
+        rulesDefinitionIncreaseRate.setAction(INCREASE_RATE);
+        rulesDefinitionIncreaseRate.setParameter(".5");
+
+        List<ActionTrigger> actionTriggersIncreaseList = new ArrayList<>();
+
+        ActionTrigger actionTriggerIncreaseDisqualify = new ActionTrigger();
+        actionTriggerIncreaseDisqualify.setPersonCreditSCore("680");
+        actionTriggerIncreaseDisqualify.setPersonCreditSCoreComparisonOperator(LESS_THAN);
+
+        actionTriggersIncreaseList.add(actionTriggerIncreaseDisqualify);
+
+        rulesDefinitionIncreaseRate.setActionTtriggers(actionTriggersIncreaseList);
+        rulesDefinitions.add(rulesDefinitionIncreaseRate);
+
+        RulesDefinition rulesDefinition = new RulesDefinition();
+        rulesDefinition.setAction(DECREASE_RATE);
+        rulesDefinition.setParameter(".5");
+
+        List<ActionTrigger> actionTriggers = new ArrayList<>();
+
+        ActionTrigger actionTriggerCreditScore = new ActionTrigger();
+        actionTriggerCreditScore.setPersonCreditSCore("750");
+        actionTriggerCreditScore.setPersonCreditSCoreComparisonOperator(GREATER_THAN_OR_EQUAL_TO);
+
+        actionTriggers.add(actionTriggerCreditScore);
+
+        rulesDefinition.setActionTtriggers(actionTriggers);
+        rulesDefinitions.add(rulesDefinition);
+
+        rules.setRules(rulesDefinitions);
+
+        ResponseEntity<Rules> listResponseEntity = mock(ResponseEntity.class);
+        when(listResponseEntity.getStatusCode()).thenReturn(HttpStatus.OK);
+        when(listResponseEntity.getBody()).thenReturn(rules);
+
+        when(RuleServiceRestTemplate
+                .getForEntity(
+                        eq(RULE_SERVICE_URL),
+                        eq(Rules.class)))
+                .thenReturn(listResponseEntity);
+
+        when(rulesLoader.getRules()).thenReturn(rules);
+
+
+        ResponseEntity<Result> ruleEngileResponseEntity = restTemplate.postForEntity("http://localhost:" + port + "/ruleEngine/api/v1/prices", priceRequest, Result.class);
+
+        assertThat(ruleEngileResponseEntity, notNullValue());
+        assertThat(ruleEngileResponseEntity.getStatusCode(), is(HttpStatus.OK));
+
+        Result resultResponse = ruleEngileResponseEntity.getBody();
+        assertThat(resultResponse.getInterest_rate(), is(4.5));
+        assertFalse(resultResponse.isDisqualified());
+    }
+
 
 
     private String serviceUrl(String path) {

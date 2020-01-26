@@ -17,6 +17,19 @@ public class CreditScoreIncreaseRateRule implements RuleEvaluator {
             result.setInterest_rate(START_INTEREST_RATE + PRODUCT_NAME_INCREASED_RATE);
             result.setDisqualified(false);
             result.setMatch(true);
+
+            if (priceRequest.getProductName().equalsIgnoreCase(INCREASED_RATE_PRODUCT_NAME)) {
+                result.setInterest_rate(result.getInterest_rate() + PRODUCT_NAME_INCREASED_RATE);
+
+            }
+
+            if (productNameRule != null) {
+                if (priceRequest.getProductName().equalsIgnoreCase(productNameRule) && action.equalsIgnoreCase(INCREASE_RATE)) {
+                    result.setInterest_rate(result.getInterest_rate() + rateDiscount);
+                    result.setMatchLodedRule(true);
+
+                }
+            }
         }
 
         if (creditScoreMathSymbolRule != null && creditScoreMathSymbolRule.equalsIgnoreCase(LESS_THAN)) {
@@ -25,6 +38,20 @@ public class CreditScoreIncreaseRateRule implements RuleEvaluator {
                 result.setInterest_rate(START_INTEREST_RATE + rateDiscount);
                 result.setDisqualified(false);
                 result.setMatch(true);
+                result.setMatchLodedRule(true);
+
+                if (priceRequest.getProductName().equalsIgnoreCase(INCREASED_RATE_PRODUCT_NAME)) {
+                    result.setInterest_rate(result.getInterest_rate() + PRODUCT_NAME_INCREASED_RATE);
+
+                }
+
+                if (productNameRule != null) {
+                    if (priceRequest.getProductName().equalsIgnoreCase(productNameRule) && action.equalsIgnoreCase(INCREASE_RATE)) {
+                        result.setInterest_rate(result.getInterest_rate() + rateDiscount);
+                        result.setMatchLodedRule(true);
+
+                    }
+                }
             }
         }
 
@@ -37,6 +64,7 @@ public class CreditScoreIncreaseRateRule implements RuleEvaluator {
             if (priceRequest.getState().equalsIgnoreCase(personStateRule) && action.equalsIgnoreCase(DISQUALIFY)) {
                 result.setDisqualified(true);
                 result.setMatch(true);
+                result.setMatchLodedRule(true);
             }
 
         }

@@ -3,8 +3,7 @@ package com.visiolending.productPricesRuleEngine.service;
 import com.visiolending.productPricesRuleEngine.model.PriceRequest;
 import com.visiolending.productPricesRuleEngine.model.Result;
 
-import static com.visiolending.productPricesRuleEngine.service.RulesEngine.DISQUALIFIED_STATE;
-import static com.visiolending.productPricesRuleEngine.service.RulesEngine.DISQUALIFY;
+import static com.visiolending.productPricesRuleEngine.service.RulesEngine.*;
 
 public class DisqualifiedStateRule implements RuleEvaluator {
     Result result = new Result();
@@ -15,6 +14,19 @@ public class DisqualifiedStateRule implements RuleEvaluator {
         if (priceRequest.getState().equalsIgnoreCase(DISQUALIFIED_STATE)) {
             result.setDisqualified(true);
             result.setMatch(true);
+
+            if (priceRequest.getProductName().equalsIgnoreCase(INCREASED_RATE_PRODUCT_NAME)) {
+                result.setInterest_rate(result.getInterest_rate() + PRODUCT_NAME_INCREASED_RATE);
+
+            }
+
+            if (productNameRule != null) {
+                if (priceRequest.getProductName().equalsIgnoreCase(productNameRule) && action.equalsIgnoreCase(INCREASE_RATE)) {
+                    result.setInterest_rate(result.getInterest_rate() + rateDiscount);
+                    result.setMatchLodedRule(true);
+
+                }
+            }
         }
 
         if (personStateRule != null) {

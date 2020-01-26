@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @Controller
 @Slf4j
 public class RuleEngineController {
@@ -22,10 +24,9 @@ public class RuleEngineController {
     }
 
     @RequestMapping(value = "/api/v1/prices",  method = RequestMethod.POST )
-    public ResponseEntity<Result> getPrice(@RequestBody PriceRequest priceRequest)
+    public ResponseEntity<Result> getPrice(@Valid @RequestBody PriceRequest priceRequest)
     {
-        Result result = rulesEngine.processRequest(priceRequest);
-        return ResponseEntity.ok().body(result);
+        return ResponseEntity.ok().body(rulesEngine.processRequest(priceRequest));
     }
 
 }
