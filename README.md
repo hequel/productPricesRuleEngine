@@ -1,6 +1,6 @@
 # Product Prices Rule Engine #
 
-This is an application to get product prices based on business rules.
+This is an application to get product prices based on business rules using the rule engine design pattern.
 
 ### Prerequisites ###
 
