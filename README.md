@@ -6,9 +6,6 @@ This is an application to get product prices based on business rules.
 
 This service uses Java8, maven, Spring. You must have JDK8 or higher installed.
 
-Itt uses the visioLending rules services to load the rules. However the application
-also uses initial set of rules provided by business team.
-
 context path:
 ````
  /ruleEngine
